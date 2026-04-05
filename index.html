@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>تكسي وين تروح</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; }
+        .screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card { background: white; border-radius: 30px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .logo-icon { font-size: 50px; background: #f97316; display: inline-block; padding: 15px; border-radius: 20px; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; }
+        .btn { background: #f97316; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; }
+        #map { height: 300px; width: 100%; border-radius: 15px; margin: 15px 0; border: 1px solid #ddd; }
+        .hidden { display: none; }
+        .app-container { padding: 15px; background: white; min-height: 100vh; }
+    </style>
+</head>
+<body>
+
+<div id="loginScreen" class="screen">
+    <div class="card">
+        <div class="logo-icon">🚕</div>
+        <h2 style="margin-bottom: 10px;">تكسي وين تروح</h2>
+        <input type="text" id="userName" placeholder="اكتب اسمك هنا">
+        <button class="btn" onclick="startApp()">دخول للتطبيق</button>
+        <p style="margin-top:15px; font-size:12px; color:#667;">انتظر قليلاً لتظهر رسالة التثبيت</p>
+    </div>
+</div>
+
+<div id="mainApp" class="hidden app-container">
+    <h3 id="welcomeMsg" style="margin-bottom:10px;">أهلاً بك</h3>
+    <div id="map"></div>
+    <input type="text" placeholder="إلى أين تذهب؟">
+    <button class="btn">اطلب تكسي الآن</button>
+</div>
+
+<script>
+    function startApp() {
+        const name = document.getElementById('userName').value || 'كابتن';
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('mainApp').classList.remove('hidden');
+        document.getElementById('welcomeMsg').innerText = "أهلاً بك، " + name;
+        
+        // تشغيل الخريطة
+        const map = L.map('map').setView([33.3152, 44.3661], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        L.marker([33.3152, 44.3661]).addTo(map).bindPopup('موقعك').openPopup();
+    }
+
+    // تسجيل الـ Service Worker (المحرك)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('✅ التطبيق جاهز للتثبيت'))
+            .catch(err => console.log('❌ فشل التسجيل', err));
+        });
+    }
+</script>
+</body>
+</html>
