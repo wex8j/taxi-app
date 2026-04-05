@@ -4,103 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
-    <!-- إجبار المتصفح على HTTPS و PWA -->
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="وين تروح">
-    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#f97316">
-    <meta name="full-screen" content="yes">
     
     <title>تكسي وين تروح</title>
     
-    <!-- Manifest مدمج بطريقة تضمن اشتغال PWA -->
-    <link rel="manifest" href="data:application/manifest+json,{
-        %22name%22:%22%D8%AA%D9%83%D8%B3%D9%8A%20%D9%88%D9%8A%D9%86%20%D8%AA%D8%B1%D9%88%D8%AD%22,
-        %22short_name%22:%22%D9%88%D9%8A%D9%86%20%D8%AA%D8%B1%D9%88%D8%AD%22,
-        %22description%22:%22%D8%A3%D8%B3%D8%B1%D8%B9%20%D8%AA%D8%B7%D8%A8%D9%8A%D9%82%20%D9%84%D8%B7%D9%84%D8%A8%20%D8%A7%D9%84%D8%AA%D9%83%D8%B3%D9%8A%20%D9%81%D9%8A%20%D8%A7%D9%84%D8%B9%D8%B1%D8%A7%D9%82%22,
-        %22start_url%22:%22/%22,
-        %22display%22:%22standalone%22,
-        %22display_override%22:[%22window-controls-overlay%22,%22standalone%22],
-        %22theme_color%22:%22%23f97316%22,
-        %22background_color%22:%22%230f172a%22,
-        %22orientation%22:%22portrait%22,
-        %22scope%22:%22/%22,
-        %22icons%22:[
-            {%22src%22:%22https://emojicdn.elk.sh/%F0%9F%9A%95?size=64%22,%22sizes%22:%2264x64%22,%22type%22:%22image/png%22},
-            {%22src%22:%22https://emojicdn.elk.sh/%F0%9F%9A%95?size=128%22,%22sizes%22:%22128x128%22,%22type%22:%22image/png%22},
-            {%22src%22:%22https://emojicdn.elk.sh/%F0%9F%9A%95?size=144%22,%22sizes%22:%22144x144%22,%22type%22:%22image/png%22},
-            {%22src%22:%22https://emojicdn.elk.sh/%F0%9F%9A%95?size=192%22,%22sizes%22:%22192x192%22,%22type%22:%22image/png%22},
-            {%22src%22:%22https://emojicdn.elk.sh/%F0%9F%9A%95?size=512%22,%22sizes%22:%22512x512%22,%22type%22:%22image/png%22}
-        ]
-    }">
+    <link rel="manifest" href="/manifest.json">
     
-    <!-- Leaflet خريطة -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; overflow-x: hidden; }
         
         /* شاشة تسجيل الدخول */
         .screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .login-card, .passenger-screen, .driver-screen { background: white; border-radius: 48px; padding: 32px 24px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .login-card, .passenger-screen, .driver-screen { background: white; border-radius: 35px; padding: 32px 24px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         
         .logo { text-align: center; margin-bottom: 32px; }
-        .logo-icon { font-size: 64px; background: linear-gradient(135deg,#f97316,#f59e0b); display: inline-block; padding: 20px; border-radius: 60px; }
+        .logo-icon { font-size: 64px; background: linear-gradient(135deg,#f97316,#f59e0b); display: inline-block; padding: 20px; border-radius: 30px; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3); }
         h2 { font-size: 28px; margin: 16px 0 8px; color: #0f172a; text-align: center; }
         
         .role-buttons { display: flex; gap: 12px; margin: 24px 0; }
-        .role-btn { flex: 1; padding: 14px; border-radius: 60px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .role-btn { flex: 1; padding: 14px; border-radius: 20px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .role-btn.active { background: #f97316; border-color: #f97316; color: white; }
         
-        input { width: 100%; padding: 16px 20px; border: 1.5px solid #e2e8f0; border-radius: 60px; font-size: 16px; margin-bottom: 16px; background: #f8fafc; }
-        .login-btn { width: 100%; background: #0f172a; color: white; padding: 16px; border-radius: 60px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; transition: 0.2s; }
+        input { width: 100%; padding: 16px 20px; border: 1.5px solid #e2e8f0; border-radius: 15px; font-size: 16px; margin-bottom: 16px; background: #f8fafc; outline: none; }
+        input:focus { border-color: #f97316; }
+        
+        .login-btn { width: 100%; background: #f97316; color: white; padding: 16px; border-radius: 15px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
         .login-btn:active { transform: scale(0.97); }
         
-        /* شاشة الراكب */
-        .header { background: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
-        #map { height: 35vh; width: 100%; border-radius: 24px; margin: 12px 0; }
-        .order-panel { background: white; border-radius: 32px; padding: 20px; margin-top: 16px; }
-        .location-row { background: #f8fafc; border-radius: 28px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; }
-        .location-row input { border: none; background: transparent; padding: 8px 0; margin: 0; }
-        .service-options { display: flex; gap: 12px; margin: 16px 0; }
-        .service-chip { background: #f1f5f9; padding: 10px 20px; border-radius: 40px; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .service-chip.active { background: #f97316; color: white; }
-        .price-box { background: #0f172a; color: white; padding: 16px; border-radius: 32px; text-align: center; margin: 16px 0; }
-        .price-number { font-size: 32px; font-weight: bold; }
-        .request-btn { width: 100%; background: #f97316; border: none; padding: 16px; border-radius: 60px; color: white; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.2s; }
-        .request-btn:active { transform: scale(0.97); }
+        /* الهيدر */
+        .header { background: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         
-        /* شاشة السائق */
-        #driverMap { height: 35vh; width: 100%; border-radius: 24px; }
-        .orders-list { background: white; border-radius: 32px; padding: 20px; margin-top: 16px; }
-        .order-card { background: #f8fafc; border-radius: 24px; padding: 16px; margin-bottom: 12px; border-right: 5px solid #f97316; }
-        .accept-btn { background: #f97316; border: none; padding: 10px; border-radius: 40px; color: white; width: 100%; margin-top: 12px; cursor: pointer; font-weight: bold; }
-        .online-badge { background: #22c55e; padding: 6px 14px; border-radius: 60px; font-size: 12px; color: white; }
+        /* الخريطة */
+        #map, #driverMap { height: 35vh; width: 100%; border-radius: 20px; margin: 10px 0; border: 2px solid #e2e8f0; }
         
-        .back-btn { background: #e2e8f0; border: none; padding: 12px 20px; border-radius: 40px; cursor: pointer; margin-top: 12px; width: 100%; font-weight: bold; }
+        /* لوحة الطلب */
+        .order-panel, .orders-list { background: white; border-radius: 25px; padding: 20px; margin-top: 10px; }
+        .location-row { background: #f8fafc; border-radius: 15px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; border: 1px solid #eee; }
+        .location-row input { border: none; background: transparent; padding: 5px 0; margin: 0; width: 100%; }
+        
+        .service-options { display: flex; gap: 10px; margin: 16px 0; overflow-x: auto; padding-bottom: 5px; }
+        .service-chip { background: #f1f5f9; padding: 10px 18px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 600; white-space: nowrap; }
+        .service-chip.active { background: #0f172a; color: white; }
+        
+        .price-box { background: #0f172a; color: white; padding: 16px; border-radius: 20px; text-align: center; margin: 15px 0; }
+        .price-number { font-size: 32px; font-weight: 800; color: #f97316; }
+        
+        .request-btn { width: 100%; background: #f97316; border: none; padding: 18px; border-radius: 15px; color: white; font-weight: bold; font-size: 18px; cursor: pointer; }
+        
+        /* السائق */
+        .order-card { background: #f8fafc; border-radius: 15px; padding: 16px; margin-bottom: 12px; border-right: 6px solid #f97316; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .accept-btn { background: #22c55e; border: none; padding: 12px; border-radius: 12px; color: white; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        
+        .back-btn { background: #e2e8f0; border: none; padding: 12px; border-radius: 12px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; color: #475569; }
+        
         .hidden { display: none; }
-        .toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #1e293b; color: white; border-radius: 60px; padding: 14px 20px; text-align: center; z-index: 1000; }
-        
-        /* تحسينات PWA */
-        @media (display-mode: standalone) {
-            body { background: #f1f5f9; }
-            .header { padding-top: 20px; }
-        }
+        .toast { position: fixed; bottom: 30px; left: 20px; right: 20px; background: #1e293b; color: white; border-radius: 15px; padding: 16px; text-align: center; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
-<!-- ======================== شاشة تسجيل الدخول ======================== -->
 <div id="loginScreen" class="screen">
     <div class="login-card">
         <div class="logo">
             <div class="logo-icon">🚕</div>
             <h2>تكسي وين تروح</h2>
-            <p style="color:#64748b; text-align:center;">أسرع تطبيق تكسي في العراق</p>
+            <p style="color:#64748b;">اختر نوع الحساب للدخول</p>
         </div>
         
         <div class="role-buttons">
@@ -108,274 +83,167 @@
             <button class="role-btn" data-role="driver">🚖 سائق</button>
         </div>
         
-        <input type="tel" id="phoneInput" placeholder="رقم الهاتف" dir="ltr">
-        <input type="text" id="nameInput" placeholder="الاسم">
+        <input type="tel" id="phoneInput" placeholder="رقم الهاتف (مثلاً 0770...)" dir="ltr">
+        <input type="text" id="nameInput" placeholder="الاسم الكامل">
         
-        <button class="login-btn" id="loginBtn">دخول ▶</button>
-        <p style="text-align:center; font-size:12px; color:#94a3b8; margin-top:20px;">
-            ✨ أضف التطبيق إلى شاشة جوالك<br>
-            (Chrome: Install App / Safari: Add to Home Screen)
-        </p>
+        <button class="login-btn" id="loginBtn">ابدأ الآن ▶</button>
+        
+        <div style="margin-top:25px; padding:15px; background:#fff7ed; border-radius:15px; border:1px dashed #fdba74; font-size:13px; color:#c2410c; text-align:center;">
+            💡 للحصول على تجربة التطبيق الكاملة، اضغط على <b>ثلاث نقاط</b> ثم <b>"Install App"</b> أو <b>"إضافة للشاشة"</b>.
+        </div>
     </div>
 </div>
 
-<!-- ======================== شاشة الراكب ======================== -->
 <div id="passengerScreen" class="hidden">
     <div class="header">
-        <div style="font-weight:800; font-size:20px; color:#f97316;">🚕 وين تروح</div>
-        <div><span id="passengerName"></span> 👤</div>
+        <div style="font-weight:900; font-size:22px; color:#f97316;">🚕 وين تروح</div>
+        <div id="passengerNameDisp" style="font-weight:bold; color:#1e293b;"></div>
     </div>
-    <div style="padding: 12px;">
-        <div id="map" style="height: 35vh;"></div>
-        
+    <div style="padding: 15px;">
+        <div id="map"></div>
         <div class="order-panel">
             <div class="location-row">
-                <span style="font-size:24px;">📍</span>
-                <input type="text" id="pickupInput" placeholder="موقعك الحالي" value="المنصور، بغداد">
+                <span style="font-size:20px;">📍</span>
+                <input type="text" id="pickupInput" placeholder="موقع الاستلام">
             </div>
             <div class="location-row">
-                <span style="font-size:24px;">🏁</span>
-                <input type="text" id="destInput" placeholder="أين تذهب؟" value="الكرادة">
+                <span style="font-size:20px;">🏁</span>
+                <input type="text" id="destInput" placeholder="أين تذهب؟">
             </div>
             
-            <div class="service-options" id="serviceContainer">
-                <div class="service-chip active" data-service="economy">اقتصادي</div>
-                <div class="service-chip" data-service="comfort">راحة</div>
-                <div class="service-chip" data-service="family">عائلي</div>
+            <div class="service-options">
+                <div class="service-chip active" data-price="4500">توفير</div>
+                <div class="service-chip" data-price="7000">VIP</div>
+                <div class="service-chip" data-price="9500">عائلي (7 ركاب)</div>
             </div>
             
             <div class="price-box">
-                <div>💰 السعر المقدر</div>
-                <div class="price-number" id="priceValue">4,500</div>
-                <div>دينار عراقي</div>
+                <div style="font-size:14px; opacity:0.8;">السعر التقريبي</div>
+                <div class="price-number"><span id="priceDisplay">4,500</span> د.ع</div>
             </div>
             
-            <button class="request-btn" id="requestRideBtn">📢 اطلب تكسي الآن</button>
-            <button class="back-btn" id="backFromPassenger">↩️ رجوع لتسجيل الدخول</button>
+            <button class="request-btn" id="requestRideBtn">📢 اطلب التكسي الآن</button>
+            <button class="back-btn" onclick="location.reload()">↩️ تبديل الحساب</button>
         </div>
     </div>
     <div id="passengerToast" class="toast hidden"></div>
 </div>
 
-<!-- ======================== شاشة السائق ======================== -->
 <div id="driverScreen" class="hidden">
     <div class="header">
-        <div style="font-weight:800; font-size:20px; color:#f97316;">🚖 وضع السائق</div>
-        <div><span id="driverName"></span> <span class="online-badge">🟢 متصل</span></div>
+        <div style="font-weight:900; font-size:22px; color:#0f172a;">🚖 نظام الكابتن</div>
+        <div style="background:#22c55e; color:white; padding:5px 12px; border-radius:20px; font-size:12px;">متصل</div>
     </div>
-    <div style="padding: 12px;">
-        <div id="driverMap" style="height: 35vh;"></div>
-        
+    <div style="padding: 15px;">
+        <div id="driverMap"></div>
         <div class="orders-list">
-            <h3>📋 طلبات قريبة منك</h3>
-            <div id="requestsContainer">
+            <h3 style="margin-bottom:15px; color:#1e293b;">📋 طلبات قريبة</h3>
+            <div id="driverOrders">
                 <div class="order-card">
-                    <div>📍 من: المنصور → 🏁 الكرادة</div>
-                    <div>💰 السعر: 5,000 دينار</div>
-                    <div>👤 راكب: أحمد</div>
-                    <button class="accept-btn">✅ قبول الطلب</button>
+                    <div style="font-weight:bold;">📍 المنصور ← الكرادة</div>
+                    <div style="font-size:14px; color:#64748b; margin:5px 0;">💰 السعر: 5,500 دينار | 👤 العميل: علي</div>
+                    <button class="accept-btn" onclick="acceptRide(this)">✅ قبول الرحلة</button>
                 </div>
                 <div class="order-card">
-                    <div>📍 من: الجادرية → 🏁 البياع</div>
-                    <div>💰 السعر: 7,200 دينار</div>
-                    <div>👤 راكب: محمد</div>
-                    <button class="accept-btn">✅ قبول الطلب</button>
-                </div>
-                <div class="order-card">
-                    <div>📍 من: المنصور → 🏁 شارع المتنبي</div>
-                    <div>💰 السعر: 4,500 دينار</div>
-                    <div>👤 راكب: علي</div>
-                    <button class="accept-btn">✅ قبول الطلب</button>
+                    <div style="font-weight:bold;">📍 الجادرية ← الدورة</div>
+                    <div style="font-size:14px; color:#64748b; margin:5px 0;">💰 السعر: 4,000 دينار | 👤 العميل: سارة</div>
+                    <button class="accept-btn" onclick="acceptRide(this)">✅ قبول الرحلة</button>
                 </div>
             </div>
-            <button class="back-btn" id="backFromDriver">↩️ رجوع لتسجيل الدخول</button>
+            <button class="back-btn" onclick="location.reload()">↩️ تسجيل الخروج</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ======================== تسجيل الدخول ========================
-    let selectedRole = 'passenger';
-    let passengerMap, driverMapObj;
-    let passengerMarker, driverMarker;
-    
+    let role = 'passenger';
+    let map, marker;
+
+    // تبديل الأدوار
     document.querySelectorAll('.role-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            selectedRole = btn.dataset.role;
+            role = btn.dataset.role;
         });
     });
-    
+
+    // تسجيل الدخول
     document.getElementById('loginBtn').addEventListener('click', () => {
-        const phone = document.getElementById('phoneInput').value.trim();
-        const name = document.getElementById('nameInput').value.trim() || (selectedRole === 'passenger' ? 'راكب' : 'سائق');
-        
-        if (!phone) {
-            alert('الرجاء إدخال رقم الهاتف');
-            return;
-        }
-        
-        const userData = { phone, name, role: selectedRole };
-        localStorage.setItem('taxiUser', JSON.stringify(userData));
-        
+        const name = document.getElementById('nameInput').value || 'مستخدم';
         document.getElementById('loginScreen').classList.add('hidden');
         
-        if (selectedRole === 'passenger') {
+        if(role === 'passenger') {
             document.getElementById('passengerScreen').classList.remove('hidden');
-            document.getElementById('passengerName').innerText = name;
-            initPassengerMap();
+            document.getElementById('passengerNameDisp').innerText = name + " 👤";
+            initMap('map');
         } else {
             document.getElementById('driverScreen').classList.remove('hidden');
-            document.getElementById('driverName').innerText = name;
-            initDriverMap();
+            initMap('driverMap');
         }
     });
-    
-    // رجوع
-    document.getElementById('backFromPassenger').addEventListener('click', () => {
-        document.getElementById('passengerScreen').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-    });
-    document.getElementById('backFromDriver').addEventListener('click', () => {
-        document.getElementById('driverScreen').classList.add('hidden');
-        document.getElementById('loginScreen').classList.remove('hidden');
-    });
-    
-    // ======================== خريطة الراكب ========================
-    function initPassengerMap() {
-        if (passengerMap) passengerMap.remove();
-        passengerMap = L.map('map').setView([33.3152, 44.3661], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(passengerMap);
-        
-        passengerMarker = L.marker([33.3152, 44.3661]).addTo(passengerMap).bindPopup('📍 موقعك');
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(pos => {
-                const { latitude, longitude } = pos.coords;
-                passengerMap.setView([latitude, longitude], 14);
-                passengerMarker.setLatLng([latitude, longitude]);
-                document.getElementById('pickupInput').value = `موقعي الحالي`;
-                passengerMarker.bindPopup('📍 أنت هنا').openPopup();
-            }, () => console.log('السماح بالموقع لتحديد موقعك'));
-        }
+
+    // تهيئة الخريطة
+    function initMap(divId) {
+        setTimeout(() => {
+            map = L.map(divId).setView([33.3152, 44.3661], 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(p => {
+                    const lat = p.coords.latitude;
+                    const lng = p.coords.longitude;
+                    map.setView([lat, lng], 15);
+                    L.marker([lat, lng]).addTo(map).bindPopup('موقعك الحالي').openPopup();
+                    if(divId === 'map') document.getElementById('pickupInput').value = "موقعي الحالي";
+                });
+            }
+        }, 200);
     }
-    
-    // ======================== خريطة السائق ========================
-    function initDriverMap() {
-        if (driverMapObj) driverMapObj.remove();
-        driverMapObj = L.map('driverMap').setView([33.3152, 44.3661], 13);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(driverMapObj);
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.watchPosition(pos => {
-                const { latitude, longitude } = pos.coords;
-                driverMapObj.setView([latitude, longitude], 14);
-                if (driverMarker) driverMarker.setLatLng([latitude, longitude]);
-                else driverMarker = L.marker([latitude, longitude]).addTo(driverMapObj).bindPopup('🚖 موقعك الحالي');
-            });
-        }
-    }
-    
-    // ======================== حساب السعر ========================
-    let currentService = 'economy';
+
+    // تغيير السعر
     document.querySelectorAll('.service-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             document.querySelectorAll('.service-chip').forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
-            currentService = chip.dataset.service;
-            updatePrice();
+            document.getElementById('priceDisplay').innerText = parseInt(chip.dataset.price).toLocaleString();
         });
     });
-    
-    function updatePrice() {
-        let base = 3000;
-        if (currentService === 'comfort') base = 4500;
-        if (currentService === 'family') base = 6000;
-        document.getElementById('priceValue').innerText = base.toLocaleString();
-    }
-    updatePrice();
-    
-    // ======================== طلب تكسي ========================
-    const requestBtn = document.getElementById('requestRideBtn');
-    const toast = document.getElementById('passengerToast');
-    
-    requestBtn.addEventListener('click', () => {
-        const dest = document.getElementById('destInput').value;
-        if (!dest) {
-            alert('أدخل الوجهة');
-            return;
-        }
+
+    // طلب تكسي
+    document.getElementById('requestRideBtn').addEventListener('click', function() {
+        const btn = this;
+        const toast = document.getElementById('passengerToast');
+        if(!document.getElementById('destInput').value) return alert("الرجاء تحديد الوجهة أولاً");
         
+        btn.disabled = true;
+        btn.innerText = "⏳ جاري البحث...";
         toast.classList.remove('hidden');
-        toast.innerText = '⏳ جاري البحث عن أقرب سائق...';
-        requestBtn.disabled = true;
-        
+        toast.innerText = "جاري إرسال طلبك لأقرب الكباتن... 📡";
+
         setTimeout(() => {
-            const drivers = ['أبو علي', 'حيدر', 'مصطفى', 'سجاد', 'أبو رائد'];
-            const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
-            toast.innerText = `✅ تم العثور على سائق: ${randomDriver} · قادم خلال 5 دقائق 🚕`;
-            
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                requestBtn.disabled = false;
-                alert(`السائق ${randomDriver} في طريقه إليك!\nيمكنك تتبعه على الخريطة قريباً`);
-            }, 3000);
-        }, 2000);
+            toast.innerText = "✅ تم قبول طلبك! الكابتن 'محمد' قادم إليك بسيارة 'سايبا صفراء' 🚕";
+            btn.innerText = "تم حجز الرحلة";
+        }, 3000);
     });
-    
-    // قبول الطلبات للسائق
-    document.querySelectorAll('.accept-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            alert('✅ تم قبول الطلب! السائق في طريقه للراكب.');
-            btn.innerText = '✅ تم الاستلام';
-            btn.disabled = true;
-            btn.style.background = '#22c55e';
-        });
-    });
-    
-    // ======================== PWA Service Worker قوي ========================
+
+    function acceptRide(btn) {
+        btn.innerText = "📍 في الطريق للراكب...";
+        btn.style.background = "#0f172a";
+        alert("تم قبول الطلب، يرجى التوجه لموقع الراكب");
+    }
+
+    // تسجيل الـ Service Worker لتمكين التثبيت
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            // Service Worker كامل يخلي التطبيق يشتغل بدون نت
             const swCode = `
-                const CACHE_NAME = 'taxi-app-v2';
-                const urlsToCache = ['/', '/index.html'];
-                
-                self.addEventListener('install', event => {
-                    event.waitUntil(
-                        caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
-                    );
-                    self.skipWaiting();
-                });
-                
-                self.addEventListener('fetch', event => {
-                    event.respondWith(
-                        fetch(event.request).catch(() => caches.match(event.request))
-                    );
-                });
-                
-                self.addEventListener('activate', event => {
-                    event.waitUntil(clients.claim());
-                });
+                self.addEventListener('install', e => self.skipWaiting());
+                self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
             `;
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            navigator.serviceWorker.register(swUrl).then(reg => {
-                console.log('✅ Service Worker registered:', reg);
-            }).catch(err => {
-                console.log('❌ SW error:', err);
-            });
+            const blob = new Blob([swCode], {type: 'application/javascript'});
+            navigator.serviceWorker.register(URL.createObjectURL(blob));
         });
     }
-    
-    // كشف إذا التطبيق شغال كـ PWA
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('✅ التطبيق شغال كـ PWA (تطبيق حقيقي)');
-    }
 </script>
-
 </body>
-    </html>
+</html>
