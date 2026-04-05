@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>تكسي وين تروح - تسجيل الدخول</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* styles مؤقت هنا للتأكد من الشكل، الأفضل نقله لstyle.css */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            padding: 20px;
+        }
+        .auth-card {
+            background: rgba(255,255,255,0.98);
+            border-radius: 48px;
+            padding: 40px 32px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo-icon {
+            font-size: 64px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            display: inline-block;
+            padding: 20px;
+            border-radius: 60px;
+            box-shadow: 0 10px 25px -5px rgba(249,115,22,0.4);
+        }
+        h2 {
+            text-align: center;
+            font-size: 28px;
+            margin: 20px 0 8px;
+            color: #0f172a;
+        }
+        .role-buttons {
+            display: flex;
+            gap: 12px;
+            margin: 28px 0;
+        }
+        .role-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 60px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+        .role-btn.active {
+            background: #f97316;
+            border-color: #f97316;
+            color: white;
+            box-shadow: 0 4px 12px rgba(249,115,22,0.3);
+        }
+        .input-field {
+            margin-bottom: 20px;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 60px;
+            font-size: 16px;
+            background: #f8fafc;
+        }
+        .login-btn {
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            padding: 16px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        .demo-note {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="logo">
+            <div class="logo-icon">🚕</div>
+            <h2>تكسي وين تروح</h2>
+            <p style="color:#475569;">أسرع تطبيق تكسي في العراق</p>
+        </div>
+        
+        <div class="role-buttons">
+            <button class="role-btn active" data-role="passenger">👤 راكب</button>
+            <button class="role-btn" data-role="driver">🚖 سائق</button>
+        </div>
+
+        <div class="input-field">
+            <input type="tel" id="phoneInput" placeholder="رقم الهاتف (مثال: 07701234567)" dir="ltr">
+        </div>
+        <div class="input-field">
+            <input type="text" id="nameInput" placeholder="الاسم الثلاثي">
+        </div>
+
+        <button class="login-btn" id="loginBtn">دخول ▶</button>
+        <div class="demo-note">
+            🔥 نسخة تجريبية · بدون كلمة مرور · جرب بالضغط على دخول
+        </div>
+    </div>
+</div>
+
+<script>
+    // تسجيل الدخول والتوجيه
+    let selectedRole = 'passenger';
+    document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedRole = btn.dataset.role;
+        });
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const phone = document.getElementById('phoneInput').value.trim();
+        const name = document.getElementById('nameInput').value.trim();
+        if (!phone) {
+            alert('الرجاء إدخال رقم الهاتف');
+            return;
+        }
+        // حفظ بيانات المستخدم في localStorage مؤقتاً
+        const userData = { phone, name: name || 'مسافر', role: selectedRole };
+        localStorage.setItem('taxiUser', JSON.stringify(userData));
+        
+        if (selectedRole === 'passenger') {
+            window.location.href = 'passenger.html';
+        } else {
+            window.location.href = 'driver.html';
+        }
+    });
+</script>
+</body>
+  </html>
