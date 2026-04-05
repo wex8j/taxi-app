@@ -3,66 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#f97316">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-title" content="وين تروح">
+    <meta name="theme-color" content="#f97316">
+    
     <title>تكسي وين تروح</title>
+    
+    <link rel="manifest" href="manifest.json">
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f1f5f9; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; }
         .screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
-        .card { background: white; border-radius: 30px; padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .logo-icon { font-size: 50px; background: #f97316; display: inline-block; padding: 15px; border-radius: 20px; margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; outline: none; }
-        .btn { background: #f97316; color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; font-size: 16px; }
-        #map { height: 300px; width: 100%; border-radius: 15px; margin: 15px 0; border: 1px solid #ddd; }
+        .login-card, .passenger-screen, .driver-screen { background: white; border-radius: 48px; padding: 32px 24px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        .logo { text-align: center; margin-bottom: 32px; }
+        .logo-icon { font-size: 64px; background: linear-gradient(135deg,#f97316,#f59e0b); display: inline-block; padding: 20px; border-radius: 60px; }
+        h2 { font-size: 28px; margin: 16px 0 8px; color: #0f172a; text-align: center; }
+        .role-buttons { display: flex; gap: 12px; margin: 24px 0; }
+        .role-btn { flex: 1; padding: 14px; border-radius: 60px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .role-btn.active { background: #f97316; border-color: #f97316; color: white; }
+        input { width: 100%; padding: 16px 20px; border: 1.5px solid #e2e8f0; border-radius: 60px; font-size: 16px; margin-bottom: 16px; background: #f8fafc; }
+        .login-btn { width: 100%; background: #0f172a; color: white; padding: 16px; border-radius: 60px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; }
+        .header { background: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 10; }
+        #map, #driverMap { height: 35vh; width: 100%; border-radius: 24px; margin: 12px 0; }
+        .order-panel { background: white; border-radius: 32px; padding: 20px; margin-top: 16px; }
+        .location-row { background: #f8fafc; border-radius: 28px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; }
+        .location-row input { border: none; background: transparent; padding: 8px 0; margin: 0; }
+        .service-options { display: flex; gap: 12px; margin: 16px 0; }
+        .service-chip { background: #f1f5f9; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 500; }
+        .service-chip.active { background: #f97316; color: white; }
+        .price-box { background: #0f172a; color: white; padding: 16px; border-radius: 32px; text-align: center; margin: 16px 0; }
+        .price-number { font-size: 32px; font-weight: bold; }
+        .request-btn { width: 100%; background: #f97316; border: none; padding: 16px; border-radius: 60px; color: white; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .order-card { background: #f8fafc; border-radius: 24px; padding: 16px; margin-bottom: 12px; border-right: 5px solid #f97316; }
+        .accept-btn { background: #f97316; border: none; padding: 10px; border-radius: 40px; color: white; width: 100%; margin-top: 12px; cursor: pointer; font-weight: bold; }
+        .back-btn { background: #e2e8f0; border: none; padding: 12px 20px; border-radius: 40px; cursor: pointer; margin-top: 12px; width: 100%; font-weight: bold; }
         .hidden { display: none; }
-        .app-container { padding: 15px; background: white; min-height: 100vh; }
+        .toast { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #1e293b; color: white; border-radius: 60px; padding: 14px 20px; text-align: center; z-index: 1000; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen" class="screen">
-    <div class="card">
-        <div class="logo-icon">🚕</div>
-        <h2 style="margin-bottom: 10px;">تكسي وين تروح</h2>
-        <input type="text" id="userName" placeholder="اكتب اسمك هنا">
-        <button class="btn" onclick="startApp()">دخول للتطبيق</button>
-        <p style="margin-top:15px; font-size:12px; color:#667;">انتظر قليلاً لتظهر رسالة التثبيت</p>
+    <div class="login-card">
+        <div class="logo"><div class="logo-icon">🚕</div><h2>تكسي وين تروح</h2></div>
+        <div class="role-buttons">
+            <button class="role-btn active" data-role="passenger">👤 راكب</button>
+            <button class="role-btn" data-role="driver">🚖 سائق</button>
+        </div>
+        <input type="tel" id="phoneInput" placeholder="رقم الهاتف" dir="ltr">
+        <input type="text" id="nameInput" placeholder="الاسم">
+        <button class="login-btn" id="loginBtn">دخول ▶</button>
     </div>
 </div>
 
-<div id="mainApp" class="hidden app-container">
-    <h3 id="welcomeMsg" style="margin-bottom:10px;">أهلاً بك</h3>
-    <div id="map"></div>
-    <input type="text" placeholder="إلى أين تذهب؟">
-    <button class="btn">اطلب تكسي الآن</button>
+<div id="passengerScreen" class="hidden">
+    <div class="header">
+        <div style="font-weight:800; font-size:20px; color:#f97316;">🚕 وين تروح</div>
+        <div id="passengerName"></div>
+    </div>
+    <div style="padding: 12px;">
+        <div id="map"></div>
+        <div class="order-panel">
+            <div class="location-row"><span>📍</span><input type="text" id="pickupInput" placeholder="موقعك الحالي"></div>
+            <div class="location-row"><span>🏁</span><input type="text" id="destInput" placeholder="أين تذهب؟"></div>
+            <div class="service-options">
+                <div class="service-chip active">اقتصادي</div>
+                <div class="service-chip">راحة</div>
+                <div class="service-chip">عائلي</div>
+            </div>
+            <div class="price-box"><div>💰 السعر المقدر</div><div class="price-number" id="priceValue">4,500</div><div>دينار</div></div>
+            <button class="request-btn" id="requestRideBtn">📢 اطلب تكسي الآن</button>
+            <button class="back-btn" onclick="location.reload()">↩️ رجوع</button>
+        </div>
+    </div>
+    <div id="passengerToast" class="toast hidden"></div>
+</div>
+
+<div id="driverScreen" class="hidden">
+    <div class="header">
+        <div style="font-weight:800; font-size:20px; color:#f97316;">🚖 وضع السائق</div>
+        <div id="driverName"></div>
+    </div>
+    <div style="padding: 12px;">
+        <div id="driverMap"></div>
+        <div class="orders-list">
+            <h3>📋 طلبات قريبة</h3>
+            <div class="order-card">
+                <div>📍 المنصور ← الكرادة</div>
+                <button class="accept-btn" onclick="alert('تم قبول الطلب!')">✅ قبول الطلب</button>
+            </div>
+            <button class="back-btn" onclick="location.reload()">↩️ رجوع</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    function startApp() {
-        const name = document.getElementById('userName').value || 'كابتن';
+    let selectedRole = 'passenger';
+    let map;
+
+    document.querySelectorAll('.role-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            selectedRole = btn.dataset.role;
+        });
+    });
+
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const name = document.getElementById('nameInput').value || 'مستخدم';
         document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('welcomeMsg').innerText = "أهلاً بك، " + name;
-        
-        // تشغيل الخريطة
-        const map = L.map('map').setView([33.3152, 44.3661], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-        L.marker([33.3152, 44.3661]).addTo(map).bindPopup('موقعك').openPopup();
+        if (selectedRole === 'passenger') {
+            document.getElementById('passengerScreen').classList.remove('hidden');
+            document.getElementById('passengerName').innerText = name + " 👤";
+            initMap('map');
+        } else {
+            document.getElementById('driverScreen').classList.remove('hidden');
+            document.getElementById('driverName').innerText = name + " 🚖";
+            initMap('driverMap');
+        }
+    });
+
+    function initMap(id) {
+        setTimeout(() => {
+            map = L.map(id).setView([33.3152, 44.3661], 13);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+            L.marker([33.3152, 44.3661]).addTo(map).bindPopup('أنت هنا').openPopup();
+        }, 200);
     }
 
-    // تسجيل الـ Service Worker (المحرك)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('✅ التطبيق جاهز للتثبيت'))
-            .catch(err => console.log('❌ فشل التسجيل', err));
+            navigator.serviceWorker.register('sw.js');
         });
     }
 </script>
