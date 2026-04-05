@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سائق · تكسي وين تروح</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui; }
+        body { background: #0f172a; }
+        .driver-header {
+            background: #1e293b;
+            color: white;
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+        #driverMap { height: 40vh; width: 100%; }
+        .orders-list {
+            background: white;
+            border-radius: 32px 32px 0 0;
+            min-height: 50vh;
+            padding: 20px;
+        }
+        .order-card {
+            background: #f8fafc;
+            border-radius: 28px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border-right: 6px solid #f97316;
+        }
+        .accept-btn {
+            background: #f97316;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            color: white;
+            margin-top: 12px;
+            width: 100%;
+            font-weight: bold;
+        }
+        .online-badge {
+            background: #22c55e;
+            padding: 6px 14px;
+            border-radius: 60px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="driver-header">
+    <div>🚖 <strong id="driverNameHeader">سائق</strong></div>
+    <div class="online-badge">🟢 متصل</div>
+</div>
+<div id="driverMap"></div>
+<div class="orders-list">
+    <h3>📋 طلبات قريبة منك</h3>
+    <div id="requestsContainer">
+        <div class="order-card">
+            <div>📍 من: المنصور - 🏁 إلى: الكرادة</div>
+            <div>💰 السعر: 5,000 دينار</div>
+            <div>👤 راكب: أحمد م.</div>
+            <button class="accept-btn">✅ قبول الطلب</button>
+        </div>
+        <div class="order-card">
+            <div>📍 من: الجادرية - 🏁 إلى: البياع</div>
+            <div>💰 السعر: 7,200 دينار</div>
+            <button class="accept-btn">قبول الطلب</button>
+        </div>
+    </div>
+</div>
+<script>
+    // خريطة السائق
+    const driverMap = L.map('driverMap').setView([33.3152, 44.3661], 12);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(driverMap);
+    let driverMarker;
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            driverMap.setView([latitude, longitude], 14);
+            if (driverMarker) driverMarker.setLatLng([latitude, longitude]);
+            else driverMarker = L.marker([latitude, longitude]).addTo(driverMap).bindPopup('موقعك الحالي');
+        });
+    }
+    const driverUser = JSON.parse(localStorage.getItem('taxiUser')) || { name: 'سائق تجريبي' };
+    document.getElementById('driverNameHeader').innerText = driverUser.name;
+    // قبول الطلبات
+    document.querySelectorAll('.accept-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            alert('تم قبول الطلب · السائق في طريقه للراكب (خلال 5 دقائق)');
+            btn.innerText = 'تم الاستلام ✅';
+            btn.disabled = true;
+        });
+    });
+</script>
+</body>
+</html>
