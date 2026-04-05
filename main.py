@@ -1,3 +1,10 @@
+from fastapi import FastAPI, Response
+from fastapi.responses import HTMLResponse, JSONResponse
+
+app = FastAPI()
+
+# كود الـ HTML اللي حافظنا عليه
+HTML_CONTENT = """
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -19,53 +26,32 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f1f5f9; overflow-x: hidden; }
-        
-        /* شاشة تسجيل الدخول */
         .screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
         .login-card, .passenger-screen, .driver-screen { background: white; border-radius: 35px; padding: 32px 24px; max-width: 500px; width: 100%; margin: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        
         .logo { text-align: center; margin-bottom: 32px; }
         .logo-icon { font-size: 64px; background: linear-gradient(135deg,#f97316,#f59e0b); display: inline-block; padding: 20px; border-radius: 30px; box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3); }
         h2 { font-size: 28px; margin: 16px 0 8px; color: #0f172a; text-align: center; }
-        
         .role-buttons { display: flex; gap: 12px; margin: 24px 0; }
         .role-btn { flex: 1; padding: 14px; border-radius: 20px; border: 2px solid #e2e8f0; background: white; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .role-btn.active { background: #f97316; border-color: #f97316; color: white; }
-        
         input { width: 100%; padding: 16px 20px; border: 1.5px solid #e2e8f0; border-radius: 15px; font-size: 16px; margin-bottom: 16px; background: #f8fafc; outline: none; }
-        input:focus { border-color: #f97316; }
-        
         .login-btn { width: 100%; background: #f97316; color: white; padding: 16px; border-radius: 15px; font-weight: bold; font-size: 18px; border: none; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.2); }
-        .login-btn:active { transform: scale(0.97); }
-        
-        /* الهيدر */
         .header { background: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 12px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        
-        /* الخريطة */
         #map, #driverMap { height: 35vh; width: 100%; border-radius: 20px; margin: 10px 0; border: 2px solid #e2e8f0; }
-        
-        /* لوحة الطلب */
         .order-panel, .orders-list { background: white; border-radius: 25px; padding: 20px; margin-top: 10px; }
         .location-row { background: #f8fafc; border-radius: 15px; padding: 12px 16px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; border: 1px solid #eee; }
         .location-row input { border: none; background: transparent; padding: 5px 0; margin: 0; width: 100%; }
-        
         .service-options { display: flex; gap: 10px; margin: 16px 0; overflow-x: auto; padding-bottom: 5px; }
         .service-chip { background: #f1f5f9; padding: 10px 18px; border-radius: 12px; cursor: pointer; transition: 0.2s; font-weight: 600; white-space: nowrap; }
         .service-chip.active { background: #0f172a; color: white; }
-        
         .price-box { background: #0f172a; color: white; padding: 16px; border-radius: 20px; text-align: center; margin: 15px 0; }
         .price-number { font-size: 32px; font-weight: 800; color: #f97316; }
-        
         .request-btn { width: 100%; background: #f97316; border: none; padding: 18px; border-radius: 15px; color: white; font-weight: bold; font-size: 18px; cursor: pointer; }
-        
-        /* السائق */
-        .order-card { background: #f8fafc; border-radius: 15px; padding: 16px; margin-bottom: 12px; border-right: 6px solid #f97316; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .order-card { background: #f8fafc; border-radius: 15px; padding: 16px; margin-bottom: 12px; border-right: 6px solid #f97316; }
         .accept-btn { background: #22c55e; border: none; padding: 12px; border-radius: 12px; color: white; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
-        
         .back-btn { background: #e2e8f0; border: none; padding: 12px; border-radius: 12px; cursor: pointer; margin-top: 10px; width: 100%; font-weight: bold; color: #475569; }
-        
         .hidden { display: none; }
-        .toast { position: fixed; bottom: 30px; left: 20px; right: 20px; background: #1e293b; color: white; border-radius: 15px; padding: 16px; text-align: center; z-index: 9999; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .toast { position: fixed; bottom: 30px; left: 20px; right: 20px; background: #1e293b; color: white; border-radius: 15px; padding: 16px; text-align: center; z-index: 9999; }
     </style>
 </head>
 <body>
@@ -75,22 +61,14 @@
         <div class="logo">
             <div class="logo-icon">🚕</div>
             <h2>تكسي وين تروح</h2>
-            <p style="color:#64748b;">اختر نوع الحساب للدخول</p>
         </div>
-        
         <div class="role-buttons">
             <button class="role-btn active" data-role="passenger">👤 راكب</button>
             <button class="role-btn" data-role="driver">🚖 سائق</button>
         </div>
-        
         <input type="tel" id="phoneInput" placeholder="رقم الهاتف (مثلاً 0770...)" dir="ltr">
         <input type="text" id="nameInput" placeholder="الاسم الكامل">
-        
         <button class="login-btn" id="loginBtn">ابدأ الآن ▶</button>
-        
-        <div style="margin-top:25px; padding:15px; background:#fff7ed; border-radius:15px; border:1px dashed #fdba74; font-size:13px; color:#c2410c; text-align:center;">
-            💡 للحصول على تجربة التطبيق الكاملة، اضغط على <b>ثلاث نقاط</b> ثم <b>"Install App"</b> أو <b>"إضافة للشاشة"</b>.
-        </div>
     </div>
 </div>
 
@@ -102,26 +80,17 @@
     <div style="padding: 15px;">
         <div id="map"></div>
         <div class="order-panel">
-            <div class="location-row">
-                <span style="font-size:20px;">📍</span>
-                <input type="text" id="pickupInput" placeholder="موقع الاستلام">
-            </div>
-            <div class="location-row">
-                <span style="font-size:20px;">🏁</span>
-                <input type="text" id="destInput" placeholder="أين تذهب؟">
-            </div>
-            
+            <div class="location-row"><span style="font-size:20px;">📍</span><input type="text" id="pickupInput" placeholder="موقع الاستلام"></div>
+            <div class="location-row"><span style="font-size:20px;">🏁</span><input type="text" id="destInput" placeholder="أين تذهب؟"></div>
             <div class="service-options">
                 <div class="service-chip active" data-price="4500">توفير</div>
                 <div class="service-chip" data-price="7000">VIP</div>
                 <div class="service-chip" data-price="9500">عائلي (7 ركاب)</div>
             </div>
-            
             <div class="price-box">
                 <div style="font-size:14px; opacity:0.8;">السعر التقريبي</div>
                 <div class="price-number"><span id="priceDisplay">4,500</span> د.ع</div>
             </div>
-            
             <button class="request-btn" id="requestRideBtn">📢 اطلب التكسي الآن</button>
             <button class="back-btn" onclick="location.reload()">↩️ تبديل الحساب</button>
         </div>
@@ -158,8 +127,6 @@
 <script>
     let role = 'passenger';
     let map, marker;
-
-    // تبديل الأدوار
     document.querySelectorAll('.role-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
@@ -167,12 +134,9 @@
             role = btn.dataset.role;
         });
     });
-
-    // تسجيل الدخول
     document.getElementById('loginBtn').addEventListener('click', () => {
         const name = document.getElementById('nameInput').value || 'مستخدم';
         document.getElementById('loginScreen').classList.add('hidden');
-        
         if(role === 'passenger') {
             document.getElementById('passengerScreen').classList.remove('hidden');
             document.getElementById('passengerNameDisp').innerText = name + " 👤";
@@ -182,13 +146,10 @@
             initMap('driverMap');
         }
     });
-
-    // تهيئة الخريطة
     function initMap(divId) {
         setTimeout(() => {
             map = L.map(divId).setView([33.3152, 44.3661], 13);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
-            
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(p => {
                     const lat = p.coords.latitude;
@@ -200,8 +161,6 @@
             }
         }, 200);
     }
-
-    // تغيير السعر
     document.querySelectorAll('.service-chip').forEach(chip => {
         chip.addEventListener('click', () => {
             document.querySelectorAll('.service-chip').forEach(c => c.classList.remove('active'));
@@ -209,41 +168,69 @@
             document.getElementById('priceDisplay').innerText = parseInt(chip.dataset.price).toLocaleString();
         });
     });
-
-    // طلب تكسي
     document.getElementById('requestRideBtn').addEventListener('click', function() {
         const btn = this;
         const toast = document.getElementById('passengerToast');
         if(!document.getElementById('destInput').value) return alert("الرجاء تحديد الوجهة أولاً");
-        
         btn.disabled = true;
         btn.innerText = "⏳ جاري البحث...";
         toast.classList.remove('hidden');
         toast.innerText = "جاري إرسال طلبك لأقرب الكباتن... 📡";
-
         setTimeout(() => {
-            toast.innerText = "✅ تم قبول طلبك! الكابتن 'محمد' قادم إليك بسيارة 'سايبا صفراء' 🚕";
+            toast.innerText = "✅ تم قبول طلبك! الكابتن 'محمد' قادم إليك 🚕";
             btn.innerText = "تم حجز الرحلة";
         }, 3000);
     });
-
     function acceptRide(btn) {
         btn.innerText = "📍 في الطريق للراكب...";
         btn.style.background = "#0f172a";
         alert("تم قبول الطلب، يرجى التوجه لموقع الراكب");
     }
 
-    // تسجيل الـ Service Worker لتمكين التثبيت
+    // هنا نستدعي المحرك اللي كتبناه جوه بالبايثون
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            const swCode = `
-                self.addEventListener('install', e => self.skipWaiting());
-                self.addEventListener('fetch', e => e.respondWith(fetch(e.request)));
-            `;
-            const blob = new Blob([swCode], {type: 'application/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
+            navigator.serviceWorker.register('/sw.js');
         });
     }
 </script>
 </body>
 </html>
+"""
+
+@app.get("/", response_class=HTMLResponse)
+async def index():
+    return HTML_CONTENT
+
+# نفس الخدعة مال يلا ميوزك: بايثون يولد المانيفست
+@app.get("/manifest.json")
+async def get_manifest():
+    return JSONResponse(content={
+        "name": "تكسي وين تروح",
+        "short_name": "وين تروح",
+        "start_url": "/",
+        "display": "standalone",
+        "background_color": "#0f172a",
+        "theme_color": "#f97316",
+        "icons": [
+            {
+                "src": "https://cdn-icons-png.flaticon.com/512/2555/2555013.png",
+                "sizes": "192x192",
+                "type": "image/png"
+            },
+            {
+                "src": "https://cdn-icons-png.flaticon.com/512/2555/2555013.png",
+                "sizes": "512x512",
+                "type": "image/png"
+            }
+        ]
+    })
+
+# وبايثون يولد الـ Service Worker
+@app.get("/sw.js")
+async def get_sw():
+    sw_code = """
+    self.addEventListener('install', (e) => { self.skipWaiting(); });
+    self.addEventListener('fetch', (e) => { e.respondWith(fetch(e.request)); });
+    """
+    return Response(content=sw_code, media_type="application/javascript")
